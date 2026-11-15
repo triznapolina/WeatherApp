@@ -5,6 +5,9 @@ import { COLORS } from '../theme/colors';
 import PrimaryButton from '../components/PrimaryButton';
 import HourCard from '../components/HourCard';
 import WeatherIcon from '../components/WeatherIcon';
+import InfoCard from '../components/InfoCard';
+import { useSettings } from '../context/SettingsContext';
+import { formatTemp } from '../utils/temperature';
 
 const HOURLY_DATA = [
     { id: '1', time: 'Сейчас', value: 18, icon: 'pc' },
@@ -17,8 +20,6 @@ const HOURLY_DATA = [
 const MIN_HOURS = 1;
 const MAX_HOURS = HOURLY_DATA.length;
 
-const formatTemp = (v) => (v > 0 ? `+${v}°` : `${v}°`);
-
 const METRICS_DATA = [
     { id: 'wind', value: '4 м/с', label: 'Ветер' },
     { id: 'humidity', value: '72%', label: 'Влажность' },
@@ -26,6 +27,9 @@ const METRICS_DATA = [
 ];
 
 export default function TodayScreen({ navigation }) {
+    const { settings } = useSettings();
+    const units = settings.units;
+
     const [hoursCount, setHoursCount] = useState(3);
 
     const increase = () => setHoursCount((prev) => Math.min(MAX_HOURS, prev + 1));
@@ -45,26 +49,26 @@ export default function TodayScreen({ navigation }) {
                 <View style={styles.header}>
                     <View>
                         <Text style={styles.dateText}>Пятница, 13 ноября</Text>
-                        <Text style={styles.cityText}>Минск</Text>
+                        <Text style={styles.cityText}>{settings.city}</Text>
                     </View>
-                    <Pressable style={styles.searchBtn}>
-                        <Text style={styles.searchIcon}>🔍</Text>
+                    <Pressable style={styles.searchBtn} onPress={() => navigation.navigate('Settings')}>
+                        <Text style={styles.searchIcon}>⚙</Text>
                     </Pressable>
                 </View>
 
                 <View style={styles.heroCard}>
                     <View style={styles.heroTop}>
                         <View>
-                            <Text style={styles.tempDisplay}>+18°</Text>
+                            <Text style={styles.tempDisplay}>{formatTemp(18, units)}</Text>
                             <Text style={styles.conditionText}>Облачно с прояснениями</Text>
-                            <Text style={styles.feelsLikeText}>Ощущается как +16°</Text>
+                            <Text style={styles.feelsLikeText}>Ощущается как {formatTemp(16, units)}</Text>
                         </View>
                         <WeatherIcon kind="pc" size={72} />
                     </View>
 
                     <View style={styles.heroBottom}>
-                        <Text style={styles.minMaxText}>Макс +19°</Text>
-                        <Text style={styles.minMaxText}>Мин +9°</Text>
+                        <Text style={styles.minMaxText}>Макс {formatTemp(19, units)}</Text>
+                        <Text style={styles.minMaxText}>Мин {formatTemp(9, units)}</Text>
                         <Text style={styles.minMaxText}>
                             {hoursCount >= 4 ? 'Вечером прохладнее' : 'Осадки 10%'}
                         </Text>
@@ -73,29 +77,31 @@ export default function TodayScreen({ navigation }) {
 
                 <Text style={styles.sectionTitle}>По часам</Text>
 
-                <View style={styles.counterCard}>
-                    <View>
-                        <Text style={styles.counterTitle}>Часов в прогнозе</Text>
-                        <Text style={styles.counterAvg}>Средняя температура: {formatTemp(avgTemp)}</Text>
+                <InfoCard>
+                    <View style={styles.counterCard}>
+                        <View>
+                            <Text style={styles.counterTitle}>Часов в прогнозе</Text>
+                            <Text style={styles.counterAvg}>Средняя температура: {formatTemp(avgTemp, units)}</Text>
+                        </View>
+                        <View style={styles.counterControls}>
+                            <Pressable
+                                onPress={decrease}
+                                disabled={hoursCount === MIN_HOURS}
+                                style={[styles.stepBtn, hoursCount === MIN_HOURS && styles.stepBtnDisabled]}
+                            >
+                                <Text style={styles.stepText}>−</Text>
+                            </Pressable>
+                            <Text style={styles.counterValue}>{hoursCount}</Text>
+                            <Pressable
+                                onPress={increase}
+                                disabled={hoursCount === MAX_HOURS}
+                                style={[styles.stepBtn, hoursCount === MAX_HOURS && styles.stepBtnDisabled]}
+                            >
+                                <Text style={styles.stepText}>+</Text>
+                            </Pressable>
+                        </View>
                     </View>
-                    <View style={styles.counterControls}>
-                        <Pressable
-                            onPress={decrease}
-                            disabled={hoursCount === MIN_HOURS}
-                            style={[styles.stepBtn, hoursCount === MIN_HOURS && styles.stepBtnDisabled]}
-                        >
-                            <Text style={styles.stepText}>−</Text>
-                        </Pressable>
-                        <Text style={styles.counterValue}>{hoursCount}</Text>
-                        <Pressable
-                            onPress={increase}
-                            disabled={hoursCount === MAX_HOURS}
-                            style={[styles.stepBtn, hoursCount === MAX_HOURS && styles.stepBtnDisabled]}
-                        >
-                            <Text style={styles.stepText}>+</Text>
-                        </Pressable>
-                    </View>
-                </View>
+                </InfoCard>
 
                 {hoursCount === MAX_HOURS && (
                     <Text style={styles.limitHint}>Достигнут максимум — доступно {MAX_HOURS} часов</Text>
@@ -108,7 +114,7 @@ export default function TodayScreen({ navigation }) {
                     renderItem={({ item, index }) => (
                         <HourCard
                             time={item.time}
-                            temp={formatTemp(item.value)}
+                            temp={formatTemp(item.value, units)}
                             icon={item.icon}
                             isActive={index === 0}
                         />
@@ -135,6 +141,12 @@ export default function TodayScreen({ navigation }) {
                     <PrimaryButton
                         title="Прогноз на неделю"
                         onPress={() => navigation.navigate('WeekForecast')}
+                    />
+                    <View style={{ height: 12 }} />
+                    <PrimaryButton
+                        title="Настройки"
+                        variant="secondary"
+                        onPress={() => navigation.navigate('Settings')}
                     />
                 </View>
             </ScrollView>
@@ -203,12 +215,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: COLORS.white,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: COLORS.neutral200,
-        padding: 14,
-        marginBottom: 12,
     },
     counterTitle: { fontSize: 14, fontWeight: '600', color: COLORS.neutral900 },
     counterAvg: { fontSize: 12, color: COLORS.neutral600, marginTop: 4 },

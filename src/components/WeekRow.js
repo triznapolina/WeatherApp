@@ -2,8 +2,11 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { COLORS } from '../theme/colors';
 import WeatherIcon from './WeatherIcon';
+import { useSettings } from '../context/SettingsContext';
+import { formatTemp } from '../utils/temperature';
 
 export default function WeekRow({ day, condition, icon, high, low, isFavorite, onToggleFavorite }) {
+    const { settings } = useSettings();
     return (
         <View style={styles.rowCard}>
             <View style={styles.rowLeft}>
@@ -15,8 +18,8 @@ export default function WeekRow({ day, condition, icon, high, low, isFavorite, o
             <View style={styles.rowRight}>
                 <WeatherIcon kind={icon} size={32} />
                 <View style={styles.tempsBlock}>
-                    <Text style={styles.tempHigh}>{high}</Text>
-                    <Text style={styles.tempLow}>{low}</Text>
+                    <Text style={styles.tempHigh}>{formatTemp(high, settings.units)}</Text>
+                    <Text style={styles.tempLow}>{formatTemp(low, settings.units)}</Text>
                 </View>
                 <Pressable
                     onPress={onToggleFavorite}

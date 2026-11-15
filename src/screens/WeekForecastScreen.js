@@ -5,6 +5,7 @@ import { COLORS } from '../theme/colors';
 import DayChip from '../components/DayChip';
 import WeekRow from '../components/WeekRow';
 import FilterTabs from '../components/FilterTabs';
+import { useSettings } from '../context/SettingsContext';
 
 const WEEK_CHIPS = [
     { id: '1', day: 'Пт', date: '13', selected: true },
@@ -17,16 +18,17 @@ const WEEK_CHIPS = [
 ];
 
 const WEEK_ROWS = [
-    { id: '1', day: 'Сегодня', condition: 'Облачно', icon: 'pc', high: '+19°', low: '+9°' },
-    { id: '2', day: 'Суббота', condition: 'Небольшой дождь', icon: 'cloud', high: '+14°', low: '+8°' },
-    { id: '3', day: 'Воскресенье', condition: 'Дождь', icon: 'cloud', high: '+12°', low: '+7°' },
-    { id: '4', day: 'Понедельник', condition: 'Пасмурно', icon: 'cloud', high: '+10°', low: '+5°' },
-    { id: '5', day: 'Вторник', condition: 'Ясно', icon: 'sun', high: '+11°', low: '+3°' },
-    { id: '6', day: 'Среда', condition: 'Переменная облачность', icon: 'pc', high: '+13°', low: '+4°' },
-    { id: '7', day: 'Четверг', condition: 'Облачно', icon: 'cloud', high: '+9°', low: '+2°' },
+    { id: '1', day: 'Сегодня', condition: 'Облачно', icon: 'pc', high: 19, low: 9 },
+    { id: '2', day: 'Суббота', condition: 'Небольшой дождь', icon: 'cloud', high: 14, low: 8 },
+    { id: '3', day: 'Воскресенье', condition: 'Дождь', icon: 'cloud', high: 12, low: 7 },
+    { id: '4', day: 'Понедельник', condition: 'Пасмурно', icon: 'cloud', high: 10, low: 5 },
+    { id: '5', day: 'Вторник', condition: 'Ясно', icon: 'sun', high: 11, low: 3 },
+    { id: '6', day: 'Среда', condition: 'Переменная облачность', icon: 'pc', high: 13, low: 4 },
+    { id: '7', day: 'Четверг', condition: 'Облачно', icon: 'cloud', high: 9, low: 2 },
 ];
 
 export default function WeekForecastScreen({ navigation }) {
+    const { settings } = useSettings();
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [filter, setFilter] = useState('all');
 
@@ -66,7 +68,7 @@ export default function WeekForecastScreen({ navigation }) {
                 </Pressable>
                 <View>
                     <Text style={styles.title}>Прогноз на неделю</Text>
-                    <Text style={styles.subtitle}>Минск · 13–19 ноября</Text>
+                    <Text style={styles.subtitle}>{settings.city} · 13–19 ноября</Text>
                 </View>
             </View>
 
