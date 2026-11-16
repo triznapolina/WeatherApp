@@ -5,30 +5,25 @@ import { COLORS } from '../theme/colors';
 import DayChip from '../components/DayChip';
 import WeekRow from '../components/WeekRow';
 import FilterTabs from '../components/FilterTabs';
-import { useSettings } from '../context/SettingsContext';
+import LoadState from '../components/LoadState';
+import useFetch from '../hooks/useFetch';
+import { api } from '../api/client';
 
-const WEEK_CHIPS = [
-    { id: '1', day: 'Пт', date: '13', selected: true },
-    { id: '2', day: 'Сб', date: '14', selected: false },
-    { id: '3', day: 'Вс', date: '15', selected: false },
-    { id: '4', day: 'Пн', date: '16', selected: false },
-    { id: '5', day: 'Вт', date: '17', selected: false },
-    { id: '6', day: 'Ср', date: '18', selected: false },
-    { id: '7', day: 'Чт', date: '19', selected: false },
-];
+export default function WeekForecastScreen({ navigation, route }) {
+    const { cityId } = route.params;
+    const { data: city, loading, error, reload } = useFetch(() => api.getCity(cityId), [cityId]);
 
-const WEEK_ROWS = [
-    { id: '1', day: 'Сегодня', condition: 'Облачно', icon: 'pc', high: 19, low: 9 },
-    { id: '2', day: 'Суббота', condition: 'Небольшой дождь', icon: 'cloud', high: 14, low: 8 },
-    { id: '3', day: 'Воскресенье', condition: 'Дождь', icon: 'cloud', high: 12, low: 7 },
-    { id: '4', day: 'Понедельник', condition: 'Пасмурно', icon: 'cloud', high: 10, low: 5 },
-    { id: '5', day: 'Вторник', condition: 'Ясно', icon: 'sun', high: 11, low: 3 },
-    { id: '6', day: 'Среда', condition: 'Переменная облачность', icon: 'pc', high: 13, low: 4 },
-    { id: '7', day: 'Четверг', condition: 'Облачно', icon: 'cloud', high: 9, low: 2 },
-];
+    return (
+        <SafeAreaView style={styles.safeArea}>
+            <LoadState loading={loading} error={error} onRetry={reload}>
+                {city && <WeekContent city={city} navigation={navigation} />}
+            </LoadState>
+        </SafeAreaView>
+    );
+}
 
-export default function WeekForecastScreen({ navigation }) {
-    const { settings } = useSettings();
+function WeekContent({ city, navigation }) {
+    const WEEK_ROWS = city.week;
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [filter, setFilter] = useState('all');
 
@@ -68,13 +63,13 @@ export default function WeekForecastScreen({ navigation }) {
                 </Pressable>
                 <View>
                     <Text style={styles.title}>Прогноз на неделю</Text>
-                    <Text style={styles.subtitle}>{settings.city} · 13–19 ноября</Text>
+                    <Text style={styles.subtitle}>{city.name} · {city.weekRange}</Text>
                 </View>
             </View>
 
             <View style={styles.chipsRow}>
-                {WEEK_CHIPS.map((chip) => (
-                    <DayChip key={chip.id} day={chip.day} date={chip.date} selected={chip.selected} />
+                {WEEK_ROWS.map((chip, index) => (
+                    <DayChip key={chip.id} day={chip.short} date={chip.date} selected={index === 0} />
                 ))}
             </View>
 
@@ -83,24 +78,22 @@ export default function WeekForecastScreen({ navigation }) {
     );
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <FlatList
-                data={visibleRows}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                extraData={favoriteIds}
-                ListHeaderComponent={header}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                ListEmptyComponent={
-                    <View style={styles.empty}>
-                        <Text style={styles.emptyTitle}>Пока нет избранных дней</Text>
-                        <Text style={styles.emptyText}>Нажмите ☆ у нужного дня во вкладке «Все»</Text>
-                    </View>
-                }
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            />
-        </SafeAreaView>
+        <FlatList
+            data={visibleRows}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            extraData={favoriteIds}
+            ListHeaderComponent={header}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ListEmptyComponent={
+                <View style={styles.empty}>
+                    <Text style={styles.emptyTitle}>Пока нет избранных дней</Text>
+                    <Text style={styles.emptyText}>Нажмите ☆ у нужного дня во вкладке «Все»</Text>
+                </View>
+            }
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+        />
     );
 }
 

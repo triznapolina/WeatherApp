@@ -25,10 +25,10 @@ export default function WelcomeScreen({ navigation }) {
                 <View style={styles.footer}>
                     <PrimaryButton
                         title="Начать"
-                        onPress={() => navigation.navigate('Today')}
+                        onPress={() => navigation.navigate('Cities')}
                     />
                     <Pressable
-                        onPress={() => navigation.navigate('Today')}
+                        onPress={() => navigation.navigate('Cities')}
                         style={styles.laterLink}
                     >
                         <Text style={styles.laterText}>Выбрать город позже</Text>

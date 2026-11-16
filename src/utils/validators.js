@@ -22,3 +22,25 @@ export function validateSettings(values) {
 
     return errors;
 }
+
+export function validateSubscription(values) {
+    const errors = {};
+    const email = values.email.trim();
+    const threshold = values.threshold.trim();
+
+    if (email === '') {
+        errors.email = 'Введите e-mail';
+    } else if (!EMAIL_REGEXP.test(email)) {
+        errors.email = 'Некорректный формат e-mail';
+    }
+
+    if (threshold === '') {
+        errors.threshold = 'Введите порог температуры';
+    } else if (!/^-?\d+$/.test(threshold)) {
+        errors.threshold = 'Порог — целое число';
+    } else if (Number(threshold) < -50 || Number(threshold) > 50) {
+        errors.threshold = 'Порог должен быть от -50 до 50';
+    }
+
+    return errors;
+}
