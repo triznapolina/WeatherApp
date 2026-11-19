@@ -9,14 +9,13 @@ export default function WelcomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Центральная иллюстрация */}
+
         <View style={styles.illustrationWrapper}>
           <View style={styles.halo}>
             <WeatherIcon kind="pc" size={110} />
           </View>
         </View>
 
-        {/* Текстовый блок */}
         <View style={styles.textBlock}>
           <Text style={styles.title}>Погода без сюрпризов</Text>
           <Text style={styles.subtitle}>
@@ -24,7 +23,6 @@ export default function WelcomeScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Кнопки действий */}
         <View style={styles.footer}>
           <PrimaryButton
             title="Начать"

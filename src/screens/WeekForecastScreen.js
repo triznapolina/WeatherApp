@@ -32,7 +32,6 @@ export default function WeekForecastScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Шапка с кнопкой назад */}
         <View style={styles.header}>
           <Pressable
             onPress={() => navigation.goBack()}
@@ -46,7 +45,6 @@ export default function WeekForecastScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Переключатель дней недели (7 чипов через map с использованием DayChip) */}
         <View style={styles.chipsRow}>
           {WEEK_CHIPS.map((chip) => (
             <DayChip
@@ -58,7 +56,6 @@ export default function WeekForecastScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Вертикальный список прогноза по дням через map */}
         <View style={styles.listContainer}>
           {WEEK_ROWS.map((row) => (
             <View key={row.id} style={styles.rowCard}>
